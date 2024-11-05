@@ -1,9 +1,23 @@
 $().ready(function (){
 
 	var btnId = null;
-	var index =null;
+	var boardId=$(".card-include").data("projectid");
+	var commentId =null;
 	
-	$(".show-model-button").on("click", function () {
+	$(window).on("beforeunload", function() {
+	          sessionStorage.setItem("scrollPosition", $(window).scrollTop());
+	      });
+
+	      // 페이지가 로드될 때 스크롤 위치 복원
+	      $(window).on("load", function() {
+	          var scrollPosition = sessionStorage.getItem("scrollPosition");
+	          if (scrollPosition) {
+	              $(window).scrollTop(parseInt(scrollPosition));
+	              sessionStorage.removeItem("scrollPosition"); // 복원 후 삭제
+	          }
+	      });
+	
+	$(".new-comment-button").on("click", function () {
 		btnId = "new";
 	  $("#commentModal").css("display","flex");
 	  $("#commentModal")[0].showModal();
@@ -22,9 +36,9 @@ $().ready(function (){
 	});
 	
 	$(".delete-btn").on("click", function () {
-		var data = $(this).closest(".fuction-line").data("id");
+		commentId = $(this).closest(".fuction-line").data("id");
 	
-		$.get(`/comment/delete/${data}`, {}, function(){
+		$.get(`/project/info/delete/${commentId}`, {}, function(){
 			location.reload(); // 새로고침
 		});
 			
@@ -33,7 +47,7 @@ $().ready(function (){
 	$(".modify-btn").on("click", function () {
 		
 		btnId = "modify";
-		index= $(this).closest(".fuction-line").data("id");
+		commentId= $(this).closest(".fuction-line").data("id");		
 		$("#commentModal").css("display","flex");
 		$("#commentModal")[0].showModal();
 		$(".modal-container").css("display", "block");
@@ -42,7 +56,8 @@ $().ready(function (){
 	$(".recomment-btn").on("click",function(){
 		
 		btnId = "recomment";
-		index= $(this).closest(".fuction-line").data("id");
+		commentId= $(this).closest(".fuction-line").data("id");
+	
 		$("#commentModal").css("display","flex");
 		$("#commentModal")[0].showModal();
 		$(".modal-container").css("display", "block");
@@ -52,19 +67,30 @@ $().ready(function (){
 	$(".submit-btn").on("click", function(){
 		
 		var text = $("#cmmntCntnt").val();
-	console.log(btnId)
+
 		if (btnId === "modify"){
-			$.post(`/comment/modify/${index}`, { cmmntCntnt : text} ,function(){
+			$.post("/project/info/modify", {
+				pjCmmntId: commentId, 
+				cmmntCntnt : text,
+			} ,function(){
 				location.reload();
 			})
 		}
 		else if (btnId === "new"){
-			$.post("/comment/list", { cmmntCntnt : text } ,function(){
+			$.post("/project/info/write", { 
+				pjId: boardId,
+				prntCmmntId: null,
+				cmmntCntnt : text,
+			
+			 } ,function(){
 				location.reload();
 			})
 		}
 		else if (btnId === "recomment"){
-			$.post("/comment/list", { cmmntCntnt : text , pjCmmntId : index} ,function(){
+			$.post("/project/info/write", {			
+				pjId: boardId,
+				prntCmmntId: commentId,
+				cmmntCntnt : text,} ,function(){
 				location.reload();
 			})
 		}

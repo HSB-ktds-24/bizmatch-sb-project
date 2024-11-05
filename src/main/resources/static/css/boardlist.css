@@ -160,30 +160,3 @@ input:hover {
 .test{
 	align-items: center;
 }
-.page-div {
-	display: flex;
-
-	    justify-content: center;
-}
-.pre-page-btn {
-	display: flex;
-}
-.page-number-btn {
-	display: flex;
-	gap:10px;
-}
-.next-page-btn {
-	display: flex;
-}
-a {
-	text-decoration: none;
-	color: black;
-}
-a:hover{
-	text-decoration: underline;
-}
-
-.number-box {
-	border: 1px solid black;
-	background-color: gray;
-}

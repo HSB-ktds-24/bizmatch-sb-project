@@ -166,3 +166,53 @@ div.main-content-container {
   padding: 3rem 0;
   flex: 1;
 }
+
+.model-div {
+	display:flex;
+	width: 100%;
+	height: 100%;
+}
+.create-new-comment {
+	    margin-bottom: 10px;
+    display: flex;
+    justify-content: flex-end;
+}
+.new-comment-button {
+background-color: #2094e8;
+    border: none;
+    width: 9rem;
+    height: 2rem;
+    text-align: center;
+    border-radius: 5px;
+    color: white;
+    font-weight: 700;
+    font-size: 1rem;
+}
+
+.comment-linner-box{
+	
+	display: flex;
+	flex-direction: column;
+}
+
+.one-comment {
+	display: flex;
+	 flex-direction: column;
+    margin-bottom : 10px;
+}
+.comment-left-part {
+	display: flex;
+	flex-direction: column;
+	    flex-grow: 1;
+}
+.comment-right-part {
+	display: flex;
+	flex-direction: column;
+}
+.date-box {
+	display:flex;
+	flex-direction: column;
+}
+.content {
+    flex-grow: 1;
+}

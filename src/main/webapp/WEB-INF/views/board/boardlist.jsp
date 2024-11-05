@@ -8,6 +8,7 @@ pageEncoding="UTF-8"%>
     <meta charset="UTF-8" />
     <title>Insert title here</title>
     <link rel="stylesheet" href="/css/boardlist.css" />
+    <link rel="stylesheet" href="/css/pagination.css" />
   </head>
   <body>
     <%@ include file="/WEB-INF/views/common/after_login_header.jsp" %>
@@ -73,16 +74,19 @@ pageEncoding="UTF-8"%>
 		</c:when>
         </c:choose>
       </div>
+      			<c:choose>
+		
+							<c:when test="${paginationVO.groupEndPageNo > 0 }">
 	
 		<div class="page-div">	
 			<div class="pre-page-btn">
 		
 				<c:if test="${paginationVO.hasPrevGroup}">
 					<div>
-						<a href="/board/list?currPageNo=0&exposureListSize=${paginationVO.exposureListSize}">처음</a>
+						<a class="white-text" href="/board/list?currPageNo=0&exposureListSize=${paginationVO.exposureListSize}">처음</a>
 					</div>
 					<div>
-						<a href="/board/list?currPageNo=${paginationVO.prevGroupStartPageNo}&exposureListSize=${paginationVO.exposureListSize}">이전</a>
+						<a class="white-text" href="/board/list?currPageNo=${paginationVO.prevGroupStartPageNo}&exposureListSize=${paginationVO.exposureListSize}">이전</a>
 					</div>
 				</c:if>
 
@@ -93,8 +97,9 @@ pageEncoding="UTF-8"%>
 					  			end= "${paginationVO.groupEndPageNo}"
 					  			step = "1"
 					  			var = "p" >
-					<div class = "number-box ${paginationVO.currPageNo eq p ? 'active':'' }">
-						<a href="/board/list?currPageNo=${p}&exposureListSize=${paginationVO.exposureListSize}">
+					<div class = "${paginationVO.currPageNo eq p ? 'active':'' }">
+						<a class= "white-text"
+						href="/board/list?currPageNo=${p}&exposureListSize=${paginationVO.exposureListSize}">
 							${p+1}
 						</a>
 					</div>
@@ -105,15 +110,19 @@ pageEncoding="UTF-8"%>
 			</div>
 			<div class="next-page-btn">
 	 			<c:if test="${paginationVO.hasNextGroup}">
-					<div>
-						<a href="/board/list?currPageNo=${paginationVO.nextGroupStartPageNo}&exposureListSize=${paginationVO.exposureListSize}">다음</a>
+					<div class = "number-box">
+						<a class= "white-text" 
+						href="/board/list?currPageNo=${paginationVO.nextGroupStartPageNo}&exposureListSize=${paginationVO.exposureListSize}">다음</a>
 					</div>
-					<div>
-						<a href="/board/list?currPageNo=${paginationVO.pageCount-1}&exposureListSize=${paginationVO.exposureListSize}">마지막</a>
+					<div class = "number-box">
+						<a class="white-text" 
+						href="/board/list?currPageNo=${paginationVO.pageCount-1}&exposureListSize=${paginationVO.exposureListSize}">마지막</a>
 					</div>
 				</c:if>
 			</div>
 		</div>
+		</c:when>
+		</c:choose>
     </div>
 
     </div>

@@ -8,65 +8,21 @@
 <title>Insert title here</title>
 <!-- <link rel="stylesheet" href="/css/common.css" /> -->
 <link rel="stylesheet" href="/css/project_info.css" />
+<!--  
+<link rel="stylesheet" href="/css/project_inquiry_modal.css" />
+<link rel="stylesheet" href="/css/project_inquiry_page.css" />
+-->
+<link rel="stylesheet" href="/css/pagination.css" />
+
+<script type="text/javascript" src="/js/jquery-3.7.1.min.js"></script>
+<script type="text/javascript" src="/js/commont_list.js"></script>
 </head>
 <body>
 	<%@ include file="/WEB-INF/views/common/after_login_header.jsp"%>
-	<div class="card-include">
+	<div class="card-include" data-projectid ="${projectId}">
 		<%@ include file="/WEB-INF/views/common/myproject_card.jsp"%>
 	</div>
-	<!-- <div class="project-card-container">
-      <div class="project-card">
-        <div class="project-box">
-          <div class="project-head">
-            <div class="project-head-front">
-              <div class="status">모집중</div>
-              <h2>HTML/Java 매뉴얼 관련 작업</h2>
-            </div>
-            <div class="post-date">등록일자 2024.08.25</div>
-          </div>
-          <div class="project-body">
-            <div class="project-body-box">
-              <div class="project-body-title">프로젝트 분야</div>
-              <div class="project-body-content bold">
-                IT·프로그래밍 / 웹사이트·모바일앱 개발
-              </div>
-            </div>
-            <div class="sidebar"></div>
-            <div class="project-body-box">
-              <div class="project-body-title">관련기술</div>
-              <div class="project-body-content">
-                <div class="circle-box">
-                  <div class="circle"></div>
-                </div>
-                <div class="language">Java, HTML5</div>
-              </div>
-            </div>
-            <div class="sidebar"></div>
-            <div class="project-body-box">
-              <div class="project-body-title">모집 마감일</div>
-              <div class="project-body-content">2024년 8월 27일</div>
-            </div>
-            <div class="sidebar"></div>
-            <div class="project-body-box">
-              <div class="project-body-title">프로젝트 일정</div>
-              <div class="project-body-content">
-                2024년 9월 1일 ~ 2024년 9월 31일
-              </div>
-            </div>
-          </div>
-          <div class="project-footer">
-            <div class="button-box">
-              <button class="apply">신청하기</button>
-            </div>
-            <div class="estimated-amount">
-              <div>예상 금액</div>
-              <div class="half-sidebar"></div>
-              <div class="bold">10,000,000 원</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div> -->
+	
 	<div class="main-content-container">
 		<div class="main-content">
 			<div>
@@ -96,14 +52,119 @@
 		<div class="main-content">
 			<div>
 				<h1 class="main-content-title">프로젝트 문의</h1>
+				<div class="create-new-comment">
+				<button class="new-comment-button">새 문의 작성하기</button>
+				</div>
 			</div>
-			<div class="main-content-detail1"></div>
-			<div class="main-content-detail1"></div>
-			<div class="main-content-detail1"></div>
-			<div class="main-content-detail1"></div>
-		</div>
+				
+			<div class="comment-outer-box">
+    			<div class="comment-middle-box">
+					<div class="comment-linner-box">
+						<c:choose>
+		
+							<c:when test="${not empty comments }">
+					
+								<c:forEach items="${comments}" var="comment">
+					
+									<div class="one-comment" style="padding-left: ${comment.lv*1.5}rem">					
+									
+										<div class="comment-left-part">
+											<div class="name"> ${comment.mbrNm} (${comment.athrId})</div>
+											<div class="content"> ${comment.cmmntCntnt}</div>
+										</div>
+										<div class="comment-right-part">
+											<div class="date-box">
+											
+												<div class="create-date"> 작성일: ${comment.crtdDt}</div>
+											
+												<c:if test="${not empty comment.lstModDt }">
+													<div class="create-date">  수정일: ${comment.lstModDt}</div>
+												</c:if>
+											</div>
+										
+										
+											<c:if test="${loginMemberVO.emilAddr eq comment.athrId}">
+											<div class="fuction-line" 
+												data-id="${comment.pjCmmntId}">
+										
+												<input class="modify-btn" type ="button" value="수정">
+												<input class="delete-btn" type ="button" value="삭제">
+												<input class="recomment-btn" type ="button" value="답글">
+
+											</div>
+											</c:if>
+										</div>
+									</div>
+								
+								
+									<c:if test="${ comment.isDlt eq '1'}">
+										<div>삭제된 댓글입니다.</div>
+									</c:if>
+										
+							
+								</c:forEach>
+							</c:when>
+							<c:otherwise>
+								<p>없다</p>
+							</c:otherwise>
+						</c:choose>
+					</div>	
+				</div>	
+			</div>
+			
+			<c:if test="${paginationVO.groupEndPageNo >0 }">
+			
+				<div class="page-div">	
+					<div class="pre-page-btn">
+			
+						<c:if test="${paginationVO.hasPrevGroup}">
+							<div>
+								<a href="/project/info/${paginationVO.searchIdParam}?currPageNo=0&exposureListSize=${paginationVO.exposureListSize}">처음</a>
+							</div>
+							<div>
+								<a href="/project/info/${paginationVO.searchIdParam}?currPageNo=${paginationVO.prevGroupStartPageNo}&exposureListSize=${paginationVO.exposureListSize}">이전</a>
+							</div>
+						</c:if>
+	
+					</div>
+					<div class="page-number-btn">
+				
+						<c:forEach begin="${paginationVO.groupStartPageNo}" 
+									end="${paginationVO.groupEndPageNo}"
+									step = "1"
+									var = "p" >
+							<div class = "${paginationVO.currPageNo eq p ? 'active':'' }">
+								<a href="/project/info/${paginationVO.searchIdParam}?currPageNo=${p}&exposureListSize=${paginationVO.exposureListSize}">
+									${p+1}
+								</a>
+								</div>
+						</c:forEach>
+					</div>
+					<div class="next-page-btn">
+		 				<c:if test="${paginationVO.hasNextGroup}">
+							<div>
+								<a href="/project/info/${paginationVO.searchIdParam}?currPageNo=${paginationVO.nextGroupStartPageNo}&exposureListSize=${paginationVO.exposureListSize}">다음</a>
+							</div>
+							<div>
+								<a href="/project/info/${paginationVO.searchIdParam}?currPageNo=${paginationVO.pageCount-1}&exposureListSize=${paginationVO.exposureListSize}">마지막</a>
+							</div>
+						</c:if>
+					</div>
+				</div>
+			</c:if>
+    	</div>
 	</div>
 
+	<dialog id="commentModal" class="commentModal">
+    	<div class="modal-content" id="modal-content">
+        	<div class="modal-container">
+                <div class="close-btn">&times;</div>
+          		<textarea id="cmmntCntnt" name="cmmntCntnt" placeholder="댓글을 입력하세요..."></textarea>
+         		<button class="submit-btn" >댓글 달기</button>
+        	</div>
+      	</div>
+    </dialog>
 	<%@ include file="/WEB-INF/views/common/footer.jsp"%>
+
 </body>
 </html>
