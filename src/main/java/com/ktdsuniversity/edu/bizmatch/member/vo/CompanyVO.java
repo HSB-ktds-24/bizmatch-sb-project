@@ -47,6 +47,7 @@ public class CompanyVO {
 		return cmpnyAddr;
 	}
 	public void setCmpnyAddr(String cmpnyAddr) {
+		cmpnyAddr = cmpnyAddr.trim();
 		this.cmpnyAddr = cmpnyAddr;
 	}
 	public String getCmpnyPhnNum() {

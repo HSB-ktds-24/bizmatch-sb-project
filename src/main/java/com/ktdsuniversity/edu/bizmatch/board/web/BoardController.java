@@ -16,13 +16,22 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.SessionAttribute;
 
 import com.ktdsuniversity.edu.bizmatch.board.service.BoardService;
+import com.ktdsuniversity.edu.bizmatch.board.vo.BoardCommentPaginationVO;
+import com.ktdsuniversity.edu.bizmatch.board.vo.BoardCommentVO;
+import com.ktdsuniversity.edu.bizmatch.board.vo.BoardCommentWriteVO;
+import com.ktdsuniversity.edu.bizmatch.board.vo.BoardModifyCommentVO;
 import com.ktdsuniversity.edu.bizmatch.board.vo.BoardModifyVO;
+import com.ktdsuniversity.edu.bizmatch.board.vo.BoardPaginationVO;
+import com.ktdsuniversity.edu.bizmatch.board.vo.BoardSearchVO;
 import com.ktdsuniversity.edu.bizmatch.board.vo.BoardVO;
 import com.ktdsuniversity.edu.bizmatch.board.vo.BoardWriteVO;
 import com.ktdsuniversity.edu.bizmatch.comment.web.CommentController;
+
 import com.ktdsuniversity.edu.bizmatch.common.exceptions.board.BoardException;
 import com.ktdsuniversity.edu.bizmatch.common.vo.PaginationVO;
+
 import com.ktdsuniversity.edu.bizmatch.member.vo.MemberVO;
+
 
 @Controller
 public class BoardController {
@@ -37,8 +46,8 @@ public class BoardController {
 	 * @return
 	 */
 	@GetMapping("/board/list")
-	public String viewBoardList(Model model, PaginationVO paginationVO
-								, @SessionAttribute(value="_LOGIN_USER_", required =false) MemberVO loginMemberVO) {
+	public String viewBoardList(Model model, BoardPaginationVO boardPaginationVO, BoardSearchVO boardSearchVO, @SessionAttribute(value="_LOGIN_USER_", required =false) MemberVO loginMemberVO) {
+
 		// 만약 로그인한 사람이 없다면,
 //		if(loginMemberVO == null) {
 //			return "main/mainpage";
@@ -47,16 +56,21 @@ public class BoardController {
 			throw new BoardException("로그인");
 		}
 		if(loginMemberVO.getEmilAddr().equals("test@test")) {
-			paginationVO.setIsAdmin(1);
+			boardPaginationVO.setIsAdmin(1);
 		}	
 		else {
-			paginationVO.setIsAdmin(0);
+			boardPaginationVO.setIsAdmin(0);
 		}
-		int flag = paginationVO.getIsAdmin();
-		paginationVO.setExposureListSize(10);
-		List<BoardVO> paginationBoardList = boardService.getForPagination(paginationVO);
-		List<BoardVO> boardList=boardService.getBoardList(flag);
-		paginationVO.setPageCount(boardList.size());
+		
+		
+		int isAdmin =boardPaginationVO.getIsAdmin();
+		boardSearchVO.setIsAdmin(isAdmin);
+		boardSearchVO.setId(loginMemberVO.getEmilAddr());
+		boardPaginationVO.setSearchIdParam(loginMemberVO.getEmilAddr());
+		List<BoardVO> paginationBoardList = boardService.getForPagination(boardPaginationVO,boardSearchVO);
+		List<BoardVO> boardList=boardService.getBoardList(boardSearchVO);
+		boardPaginationVO.setPageCount(boardList.size());
+
 	
 		
 		int boardCount = boardService.getBoardCount();
@@ -64,7 +78,7 @@ public class BoardController {
 		model.addAttribute("boardList", boardList);
 		model.addAttribute("boardCount", boardCount);
 		model.addAttribute("paginationBoardList",paginationBoardList);
-		model.addAttribute("paginationVO",paginationVO);
+		model.addAttribute("paginationVO",boardPaginationVO);
 		model.addAttribute("size", paginationBoardList.size());
 		return "board/boardlist";
 	}
@@ -77,15 +91,43 @@ public class BoardController {
 	@GetMapping("/board/view/{id}")
 	public String viewOneBoard(Model model
 								, @PathVariable String id
-								, @SessionAttribute(value="_LOGIN_USER_", required =false) MemberVO loginMemberVO) {
+								, BoardCommentPaginationVO boardCommentPaginationVO
+								, @SessionAttribute(value="_LOGIN_USER_", required =false) MemberVO loginMemberVO
+								) {
+		
 		boardService.doIncreaseViews(id);
+		
 		BoardVO boardVO = boardService.getOneBoard(id);
 		MemberVO loginInfo =loginMemberVO;
+		
+		int size = boardService.getAllBoardComment(id).size();
+		System.out.println("크기" +size);
+		boardCommentPaginationVO.setPageCount(size);
+		boardCommentPaginationVO.setSearchIdParam(id);
+		List<BoardCommentVO> comments = boardService.getPaginationComment(boardCommentPaginationVO, id);
+		
 		model.addAttribute("boardVO", boardVO);
 		model.addAttribute("loginInfo", loginInfo);
-		
+		model.addAttribute("comments",comments);
+		model.addAttribute("paginationVO",boardCommentPaginationVO);
 		return "board/boardview";
 	}
+	
+	@ResponseBody
+	@PostMapping("/board/view")
+	public Map<String, Object> doCreateNewComment( BoardCommentWriteVO boardCommentWriteVO , Model model,@SessionAttribute(value="_LOGIN_USER_", required =false) MemberVO loginMemberVO) {
+		
+		boardCommentWriteVO.setAthrId(loginMemberVO.getEmilAddr());
+
+
+		boolean result = boardService.createBoardComment(boardCommentWriteVO);
+		
+		
+		Map<String, Object> resultMap = new HashMap<>();
+		resultMap.put("result", result);
+		return resultMap;
+	}
+	
 	/**
 	 * 게시글 작성페이지
 	 * 
@@ -123,6 +165,7 @@ public class BoardController {
 		BoardVO boardVO = boardService.getOneBoard(id);
 		model.addAttribute("loginMemberVO",loginMemberVO);
 		model.addAttribute("boardVO", boardVO);
+		model.addAttribute("boardId", id);
 		return "board/boardmodify";
 	}
 	
@@ -141,11 +184,30 @@ public class BoardController {
 	@PostMapping("/board/delete/{id}")
 	public Map<String, Object> viewBoardModifyPage(@PathVariable String id){
 		boolean result = boardService.doDeletePost(id);
-		logger.debug("결과"+result);
+	
 		Map<String, Object> resultMap = new HashMap<>();
 		resultMap.put("result", result);
 		return resultMap;
 	}
+	
+	@ResponseBody
+	@PostMapping("/board/comment/modify")
+	public Map<String, Object> doModifyComment(BoardModifyCommentVO boardModifyCommentVO) {
+		boolean result = boardService.modifyBoardComment(boardModifyCommentVO);
 
+		Map<String, Object> resultMap = new HashMap<>();
+		resultMap.put("result", result);
+		return resultMap;
+	}
+	
+	@ResponseBody
+	@PostMapping("/board/comment/delete/{id}")
+	public Map<String, Object> doDeleteComment(@PathVariable String id) {
+		boolean result = boardService.fixDeleteState(id);
 
+		Map<String, Object> resultMap = new HashMap<>();
+		resultMap.put("result", result);
+		return resultMap;
+	}
+	
 }

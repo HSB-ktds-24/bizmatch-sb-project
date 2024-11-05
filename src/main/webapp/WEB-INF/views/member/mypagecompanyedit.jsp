@@ -1,5 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
-pageEncoding="UTF-8"%>
+pageEncoding="UTF-8"%> <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <!DOCTYPE html>
 <html>
   <head>
@@ -50,10 +50,8 @@ pageEncoding="UTF-8"%>
                 <textarea
                   class="introduction-content"
                   id="cmpnyIntr"
-                  name="cmpnyIntr"
-                >
-${companyVO.cmpnyIntr}</textarea
-                >
+                  name="cmpnyIntr" >
+                ${companyVO.cmpnyIntr}</textarea>
               </div>
               <div class="interesting-industry" id="interesting-industry">
                 관심 산업 <%@ include
@@ -63,14 +61,30 @@ ${companyVO.cmpnyIntr}</textarea
                 보유 기술
                 <div class="holding-technology-list">
                   <c:choose>
-                    <c:when test="${not empty stkList}">
-                      <c:forEach var="tech" items="${stkList}">
-                        <div class="tech">${tech}</div>
+                    <c:when test="${not empty mbrPrmStkList}">
+                      <c:forEach var="tech" items="${mbrPrmStkList}">
+                        <div class="tech">${tech.prmStkVO.prmStk}</div>
                       </c:forEach>
                     </c:when>
+                    <c:otherwise>
+                      <div class="no-tech">보유 기술 정보가 없습니다</div>
+                    </c:otherwise>
                   </c:choose>
                 </div>
               </div>
+
+              <div class="account">
+                <div class="count-titile">회사 계좌 번호</div>
+                <c:choose>
+                    <c:when test="${not empty companyVO.cmpnyAccuuntNum}">
+                    	<input id="account-input" type=text value="${companyVO.cmpnyAccuuntNum}">
+                    </c:when>
+                    <c:otherwise>
+                    	<input id="account-input"type=text placeholder="계좌번호를 입력해주세요">
+                    </c:otherwise>
+                </c:choose>
+              </div>
+              
               <div class="attachment" id="attachment">
                 회사 첨부자료
                 <button class="more-button small" type="button">더 보기</button>

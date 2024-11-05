@@ -9,8 +9,12 @@ public class WriteProjectVO {
 	private String pjId; // 프로젝트 아이디.
 	private String emilAddr; // 이메일주소.
 	private String ordrId; // 
-	private String indstrId; // 산업군 아이디
-	private String indstrNm; // 산업군 명
+	private String firstIndstrId; // 상위 산업군 아이디
+	private String firstIndstrNm; // 상위 산업군 명
+	
+	private String secondIndstrId; // 상위 산업군 아이디
+	private String secondIndstrNm; // 상위 산업군 명
+	
 	private String prmStkId; // 주요기술 아이디
 	private String rgstrDt; // 프로젝트 등록 일자
 	private String pjInstrId; // 프로젝트 산업분야 아이디
@@ -24,27 +28,12 @@ public class WriteProjectVO {
 	private int pjRcrutCnt; // 프로젝트 모집인원
 	private String pjRcrutStrtDt; // 프로젝트 모집 시작일
 	private String pjRcrutEndDt; // 프로젝트 모집 종료일
-	private int grntAmt; // 보증금
-	private String accntNm; //계좌정보
 	private String ip; // 아이피 정보.
 	private List<MultipartFile> fileList; // 사용자가 입력한 파일
-	private List<ProjectSkillVO> projectSkillList; // 해당 프로젝트의 보유 기술 목록
-
 	
 	
 	
-	public int getGrntAmt() {
-		return grntAmt;
-	}
-	public void setGrntAmt(int grntAmt) {
-		this.grntAmt = grntAmt;
-	}
-	public String getAccntNm() {
-		return accntNm;
-	}
-	public void setAccntNm(String accntNm) {
-		this.accntNm = accntNm;
-	}
+	
 	public String getPjId() {
 		return pjId;
 	}
@@ -63,6 +52,32 @@ public class WriteProjectVO {
 	public void setOrdrId(String ordrId) {
 		this.ordrId = ordrId;
 	}
+	
+	public String getFirstIndstrId() {
+		return firstIndstrId;
+	}
+	public void setFirstIndstrId(String firstIndstrId) {
+		this.firstIndstrId = firstIndstrId;
+	}
+	public String getFirstIndstrNm() {
+		return firstIndstrNm;
+	}
+	public void setFirstIndstrNm(String firstIndstrNm) {
+		this.firstIndstrNm = firstIndstrNm;
+	}
+	public String getSecondIndstrId() {
+		return secondIndstrId;
+	}
+	public void setSecondIndstrId(String secondIndstrId) {
+		this.secondIndstrId = secondIndstrId;
+	}
+	public String getSecondIndstrNm() {
+		return secondIndstrNm;
+	}
+	public void setSecondIndstrNm(String secondIndstrNm) {
+		this.secondIndstrNm = secondIndstrNm;
+	}
+	/*
 	public String getIndstrId() {
 		return indstrId;
 	}
@@ -75,7 +90,7 @@ public class WriteProjectVO {
 	public void setIndstrNm(String indstrNm) {
 		this.indstrNm = indstrNm;
 	}
-	
+	*/
 	public String getRgstrDt() {
 		return rgstrDt;
 	}
@@ -165,12 +180,6 @@ public class WriteProjectVO {
 	}
 	public void setPrmStkId(String prmStkId) {
 		this.prmStkId = prmStkId;
-	}
-	public List<ProjectSkillVO> getProjectSkillList() {
-		return projectSkillList;
-	}
-	public void setProjectSkillList(List<ProjectSkillVO> projectSkillList) {
-		this.projectSkillList = projectSkillList;
 	}
 	
 	

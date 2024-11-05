@@ -463,7 +463,10 @@ public class MemberController {
 		}
 		CompanyVO companyVO =  this.memberService.selectOneCompanyByEmilAddr(memberVO);
 		model.addAttribute("companyVO",companyVO);
+		
+		System.out.println(companyVO.getCmpnyAddr()+": 상세주소");
 		return "member/mypagecompanyedit";
+		
 	}
 	@ResponseBody
 	@PostMapping("/member/mypage/company/edit")
@@ -472,7 +475,7 @@ public class MemberController {
 		System.out.println("cmpnyNme"+memberCompanyModifyVO.getCmpnyNm());
 		System.out.println("cmpnyurl"+memberCompanyModifyVO.getCmpnySiteUrl());
 		System.out.println("cmpnyintr"+memberCompanyModifyVO.getCmpnyIntr());
-		
+		System.out.println("계좌번호"+memberCompanyModifyVO.getCmpnyAccuntNum());
 		boolean isSuccess = this.memberService.updateCompanyMemberMyPage(memberCompanyModifyVO, memberVO);
 		
 		if(isSuccess) {
@@ -503,17 +506,29 @@ public class MemberController {
 		return "member/mypagefreelanceredit";
 	}
 	
-	@PostMapping("/member/mypage/freelancer/edit/{email}/")
-	public String doFreelancerMyPageEdit(@PathVariable String emilAddr
-										, @SessionAttribute(value = "_LOGIN_USER_" , required = false)MemberVO memberVO
-										, MemberFreelancerModifyVO memberFreelancerModifyVO) {
+	@ResponseBody
+	@PostMapping("/member/mypage/freelancer/edit")
+	public Map<String, Object> doFreelancerMyPageEdit(@SessionAttribute(value = "_LOGIN_USER_" , required = false)MemberVO memberVO
+										, @RequestBody MemberFreelancerModifyVO memberFreelancerModifyVO) {
+		
 		int cmpId = memberVO.getMbrCtgry();
-		if(cmpId == 0) {
-			return "redirect:/member/mypage/company/edit/"+memberVO.getCmpId();
+		if (cmpId == 0) {
+			return Map.of("response", false, "redirectUrl", "/member/mypage/company/edit/" + memberVO.getCmpId());
 		}
-		memberFreelancerModifyVO.setEmilAddr(emilAddr);
-		this.memberService.updateFreelancerMemberMypage(memberFreelancerModifyVO);
-		return "member/mypagefreelanceredit";
+		
+		memberFreelancerModifyVO.setEmilAddr(memberVO.getEmilAddr());
+		memberFreelancerModifyVO.setMbrIntr(memberFreelancerModifyVO.getMbrIntr());
+		memberFreelancerModifyVO.setMjrId(memberVO.getMjrId());
+		memberFreelancerModifyVO.setSmjrId(memberVO.getSmjrId());
+		// 오류 발생시 주석처리
+	    memberFreelancerModifyVO.setMbrPrmStkList(memberFreelancerModifyVO.getMbrPrmStkList());
+		// 상범 - 추가함
+	    memberFreelancerModifyVO.setAccntNum(memberFreelancerModifyVO.getAccntNum());
+				
+		boolean isSuccess = memberService.updateFreelancerMemberMypage(memberFreelancerModifyVO);
+		
+		
+		return Map.of("response", isSuccess);
 	}
 	
 	@GetMapping("/member/newportfolio")

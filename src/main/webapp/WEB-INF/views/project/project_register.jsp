@@ -30,7 +30,7 @@ uri="http://www.springframework.org/tags/form" %>
               <div class="project-section-name">프로젝트 카테고리</div>
               <div class="level-category-area">
                 <select
-                  name="indstrId"
+                  name="firstIndstrId"
                   class="level-category"
                   id="level-category"
                 >
@@ -58,7 +58,7 @@ uri="http://www.springframework.org/tags/form" %>
               <div></div>
               <div class="level-category-area">
                 <select
-                  name="indstrId"
+                  name="secondIndstrId"
                   class="second-level-category"
                   id="second-level-category"
                 >
@@ -216,7 +216,7 @@ uri="http://www.springframework.org/tags/form" %>
                         <div class="skill-circle" data-id="64">HTML</div>
                       </div>
                       <div class="skill-circle-box">
-                        <div class="skill-circle" data-id="18">C</div>
+                        <div class="skill-circle" data-id="18">C#</div>
                         <div
                           class="skill-circle"
                           style="width: 4rem"
@@ -380,7 +380,7 @@ ${writeProjectVO.pjDesc}</textarea
             </div>
           </div>
           <div class="btn-area">
-            <input class="project-register-btn" value="등록" type="submit" />
+            <input class="project-register-btn" value="등록" />
 
             <!-- <button class="cancle-btn" type="button"><span>취소</span></button> -->
           </div>

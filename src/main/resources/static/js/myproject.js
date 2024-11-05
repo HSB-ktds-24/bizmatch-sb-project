@@ -1,13 +1,8 @@
 $().ready(function () {
-  // 지원기업 리스트 보는거 요청하는 메서드.
-  $("input[type=button]").on("click", function (e) {
-    const pjId = $(this).data("id");
-    location.href = `/project/apply/member/${pjId}`;
-  });
-
   $.get({
     url: "/project/findPage",
     dataType: "json",
+
     success: function (response) {
       $("#result").empty();
 
@@ -109,9 +104,17 @@ $().ready(function () {
   });
 
   $("#applyview").on("click", function () {
-    const pjId = $(this).data("id");
-    location.href = `/project/view/applyinfo?pjId=${pjId}`;
-  });
+	  alert("!");
+      var pjId = $(this).data("id");
+      var emilAddr = $(this).data("email"); 
 
-  console.log(">>" + $(".language").text());
+      $.get({
+          url: "/project/view/applyinfo",
+          dataType: "json",
+          data: {
+              emilAddr: emilAddr,  
+              pjId: pjId
+          }
+      });
+  })
 });

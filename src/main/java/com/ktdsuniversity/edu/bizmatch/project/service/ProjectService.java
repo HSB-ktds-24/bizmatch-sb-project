@@ -1,12 +1,20 @@
 package com.ktdsuniversity.edu.bizmatch.project.service;
 
+
+import java.util.List;
+
+
 import java.text.ParseException;
 import java.util.List;
 
 import com.ktdsuniversity.edu.bizmatch.member.vo.MemberVO;
-import com.ktdsuniversity.edu.bizmatch.member.vo.PrmStkVO;
+
 import com.ktdsuniversity.edu.bizmatch.project.vo.ApplyProjectVO;
 import com.ktdsuniversity.edu.bizmatch.project.vo.ModifyProjectVO;
+import com.ktdsuniversity.edu.bizmatch.project.vo.ProjectCommentModifyVO;
+import com.ktdsuniversity.edu.bizmatch.project.vo.ProjectCommentPaginationVO;
+import com.ktdsuniversity.edu.bizmatch.project.vo.ProjectCommentVO;
+import com.ktdsuniversity.edu.bizmatch.project.vo.ProjectCommentWriteVO;
 import com.ktdsuniversity.edu.bizmatch.project.vo.ProjectListVO;
 import com.ktdsuniversity.edu.bizmatch.project.vo.ProjectScrapVO;
 import com.ktdsuniversity.edu.bizmatch.project.vo.ProjectSkillVO;
@@ -23,7 +31,7 @@ public interface ProjectService {
 	 * @return
 	 * @throws ParseException 
 	 */
-	public boolean createNewProject(WriteProjectVO writeProjectVO, List<String> skillList) ;
+	public boolean createNewProject(WriteProjectVO writeProjectVO) throws ParseException;
 	
 	/**
 	 * 하나의 프로젝트 정보를 수정하는 메서드.
@@ -75,6 +83,17 @@ public interface ProjectService {
 	public ProjectVO readOneProjectInfo(String pjId);
 	
 	/**
+<<<<<<< HEAD
+	 * 이하 댓글 관련 Service 메서드
+	 * @param id
+	 * @return
+	 */
+	public boolean updateDeleteState(String id);
+	public List<ProjectCommentVO> getPaginationComment(ProjectCommentPaginationVO projectCommentPaginationVO,String id);
+	public boolean createNewComment(ProjectCommentWriteVO projectCommentWriteVO);
+	public boolean modifyComment(ProjectCommentModifyVO projectCommentModifyVO);
+	public List<ProjectCommentVO> getAllComment(String id);
+	/*
 	 * 프로젝트 게시글 조회수 증가시켜주는 메서드.
 	 * @param pjId : 프로젝트 아이디.
 	 * @return : 조회수 증가 성공 여부.
@@ -126,11 +145,6 @@ public interface ProjectService {
 	public List<ProjectSkillVO> readAllProjectSkill(String pjId);
 
 	/**
-	 * 모든 기술 목록 조회
-	 * @return
-	 */
-	public List<PrmStkVO> selectAllProjectSkillList();
-	/**
 	 * 하나의 기업이 발주했던 모든 프로젝트 검색
 	 * @param cmpId : 회사 아이디.
 	 * @return
@@ -164,5 +178,7 @@ public interface ProjectService {
 	 * @return
 	 */
 	public ApplyProjectVO readOneApplyProject(ApplyProjectVO applyProjectVO);
+	
+	public ApplyProjectVO findOneApplyProjectWithoutApplyId(ApplyProjectVO applyProjectVO);
 	
 }

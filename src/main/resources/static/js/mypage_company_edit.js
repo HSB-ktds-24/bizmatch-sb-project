@@ -24,6 +24,8 @@ $().ready(function () {
 
     var cmpaddr = $("#cmpnyAddr").text();
     var cmpintr = $("#cmpnyIntr").val();
+	
+	var cmpnyAccuntNum = $("#account-input").val();
 
     console.log(cmpintr);
 
@@ -38,6 +40,7 @@ $().ready(function () {
         cmpnySiteUrl: cmpurl,
         cmpnyAddr: cmpaddr,
         cmpnyIntr: cmpintr,
+		cmpnyAccuntNum: cmpnyAccuntNum,
       }),
       success: function (response) {
         console.log("asdf");

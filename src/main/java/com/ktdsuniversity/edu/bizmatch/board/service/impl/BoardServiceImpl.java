@@ -9,7 +9,13 @@ import org.springframework.stereotype.Service;
 
 import com.ktdsuniversity.edu.bizmatch.board.dao.BoardDao;
 import com.ktdsuniversity.edu.bizmatch.board.service.BoardService;
+import com.ktdsuniversity.edu.bizmatch.board.vo.BoardCommentPaginationVO;
+import com.ktdsuniversity.edu.bizmatch.board.vo.BoardCommentVO;
+import com.ktdsuniversity.edu.bizmatch.board.vo.BoardCommentWriteVO;
+import com.ktdsuniversity.edu.bizmatch.board.vo.BoardModifyCommentVO;
 import com.ktdsuniversity.edu.bizmatch.board.vo.BoardModifyVO;
+import com.ktdsuniversity.edu.bizmatch.board.vo.BoardPaginationVO;
+import com.ktdsuniversity.edu.bizmatch.board.vo.BoardSearchVO;
 import com.ktdsuniversity.edu.bizmatch.board.vo.BoardVO;
 import com.ktdsuniversity.edu.bizmatch.board.vo.BoardWriteVO;
 import com.ktdsuniversity.edu.bizmatch.comment.web.CommentController;
@@ -22,8 +28,8 @@ public class BoardServiceImpl implements BoardService {
 	private BoardDao boardDao;
 	
 	@Override
-	public List<BoardVO> getBoardList(int flag) {
-		List<BoardVO> result = boardDao.selectBoardList(flag);
+	public List<BoardVO> getBoardList(BoardSearchVO BoardsearchVO) {
+		List<BoardVO> result = boardDao.selectBoardList(BoardsearchVO);
 		return result;
 	}
 
@@ -60,17 +66,52 @@ public class BoardServiceImpl implements BoardService {
 	}
 
 	@Override
-	public List<BoardVO> getForPagination(PaginationVO paginationVO) {
+	public List<BoardVO> getForPagination(BoardPaginationVO boardPaginationVO,BoardSearchVO BoardsearchVO) {
 		List<BoardVO> result ;
 
-		if(paginationVO == null) {
-			result = boardDao.selectBoardList(0);
+		if(boardPaginationVO == null) {
+			result = boardDao.selectBoardList(BoardsearchVO);
 		}
 		else {
-			result = boardDao.selectForPagination(paginationVO);
+			result = boardDao.selectForPagination(boardPaginationVO);
 		}
 		
 		return result;
+	}
+
+	// 이하 댓글 관련 서비스
+	@Override
+	public List<BoardCommentVO> getAllBoardComment(String id) {
+		List<BoardCommentVO> result = boardDao.selectAllBoardComment(id);
+		return result;
+	}
+
+	@Override
+	public List<BoardCommentVO> getPaginationComment(BoardCommentPaginationVO boardCommentPaginationVO, String id) {
+		List<BoardCommentVO> result;
+		if(boardCommentPaginationVO == null) {
+			result = boardDao.selectAllBoardComment(id);
+		}
+		else {
+			result = boardDao.selectPaginationComment(boardCommentPaginationVO);
+		}
+		
+		return result;
+	}
+
+	@Override
+	public boolean createBoardComment(BoardCommentWriteVO boardCommentWriteVO) {
+		return boardDao.insertBoardComment(boardCommentWriteVO) >0;
+	}
+
+	@Override
+	public boolean modifyBoardComment(BoardModifyCommentVO boardModifyCommentVO) {
+		return boardDao.updateBoardComment(boardModifyCommentVO)>0;
+	}
+
+	@Override
+	public boolean fixDeleteState(String id) {
+		return boardDao.updateDeleteState(id) >0;
 	}
 
 }

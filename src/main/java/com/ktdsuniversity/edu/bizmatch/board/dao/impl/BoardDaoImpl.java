@@ -8,10 +8,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.ktdsuniversity.edu.bizmatch.board.dao.BoardDao;
+import com.ktdsuniversity.edu.bizmatch.board.vo.BoardCommentPaginationVO;
+import com.ktdsuniversity.edu.bizmatch.board.vo.BoardCommentVO;
+import com.ktdsuniversity.edu.bizmatch.board.vo.BoardCommentWriteVO;
+import com.ktdsuniversity.edu.bizmatch.board.vo.BoardModifyCommentVO;
 import com.ktdsuniversity.edu.bizmatch.board.vo.BoardModifyVO;
+import com.ktdsuniversity.edu.bizmatch.board.vo.BoardPaginationVO;
+import com.ktdsuniversity.edu.bizmatch.board.vo.BoardSearchVO;
 import com.ktdsuniversity.edu.bizmatch.board.vo.BoardVO;
 import com.ktdsuniversity.edu.bizmatch.board.vo.BoardWriteVO;
-import com.ktdsuniversity.edu.bizmatch.common.vo.PaginationVO;
 
 @Repository
 public class BoardDaoImpl extends SqlSessionDaoSupport implements BoardDao{
@@ -23,8 +28,8 @@ public class BoardDaoImpl extends SqlSessionDaoSupport implements BoardDao{
 	}
 	
 	@Override
-	public List<BoardVO> selectBoardList(int flag) {
-		return getSqlSessionTemplate().selectList(NAMESPACE +".selectBoardList", flag);
+	public List<BoardVO> selectBoardList(BoardSearchVO boardSearchVO) {
+		return getSqlSessionTemplate().selectList(NAMESPACE +".selectBoardList", boardSearchVO);
 	}
 
 	@Override
@@ -58,8 +63,33 @@ public class BoardDaoImpl extends SqlSessionDaoSupport implements BoardDao{
 	}
 
 	@Override
-	public List<BoardVO> selectForPagination(PaginationVO paginationVO) {
-		return getSqlSessionTemplate().selectList(NAMESPACE+".selectForPagination",paginationVO);
+	public List<BoardVO> selectForPagination(BoardPaginationVO boardPaginationVO) {
+		return getSqlSessionTemplate().selectList(NAMESPACE+".selectForPagination",boardPaginationVO);
+	}
+
+	@Override
+	public List<BoardCommentVO> selectAllBoardComment(String id) {
+		return getSqlSessionTemplate().selectList(NAMESPACE+".selectBoardComment", id);
+	}
+
+	@Override
+	public List<BoardCommentVO> selectPaginationComment(BoardCommentPaginationVO boardCommentPaginationVO) {
+		return getSqlSessionTemplate().selectList(NAMESPACE+".selectPaginationComment", boardCommentPaginationVO);
+	}
+
+	@Override
+	public int insertBoardComment(BoardCommentWriteVO boardCommentWriteVO) {
+		return getSqlSessionTemplate().insert(NAMESPACE+".insertBoardComment",boardCommentWriteVO);
+	}
+
+	@Override
+	public int updateBoardComment(BoardModifyCommentVO boardModifyCommentVO) {
+		return getSqlSessionTemplate().update(NAMESPACE+".updateBoardComment", boardModifyCommentVO);
+	}
+
+	@Override
+	public int updateDeleteState(String id) {
+		return getSqlSessionTemplate().update(NAMESPACE+".updateDeleteState", id);
 	}
 	
 

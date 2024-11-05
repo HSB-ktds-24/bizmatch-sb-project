@@ -35,8 +35,8 @@
 	
 	<select id="selectOneMemberForResetPwd"
 			parameterType = "string"
-			resultType="com.ktdsuniversity.edu.bizmatch.member.vo.MemberVO">
-		SELECT * 
+			resultType="string">
+		SELECT EMIL_ADDR 
 		  FROM MBR_INFO 
 		 WHERE EMIL_ADDR = #{_parameter}
 	</select>
@@ -201,6 +201,7 @@
 		 , CMPNY_PHN_NUM
 		 , CMPNY_SITE_URL
 		 , CMPNY_EMPLY_CNT
+		 , CMPNY_ACCUNT_NUM
 		 , CMPNY_BRN
 		 , SMJR_ID
 	  FROM CMPNY_INFO
@@ -547,6 +548,7 @@
  	  SET MBR_INTR = #{mbrIntr}
  	    , MJR_ID = #{mjrId}
  	    , SMJR_ID = #{smjrId}
+ 	    , ACCNT_NUM = #{accntNum}
  	WHERE EMIL_ADDR = #{emilAddr}
  	
  	</update>

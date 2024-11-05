@@ -81,9 +81,13 @@ uri="jakarta.tags.core" %>
                   class="apply"
                   id="applyview"
                   data-id="${project.pjId}"
+                  data-email="${email}"
                   type="button"
                   value="지원서 보기"
                 />
+                
+                아이디: ${project.pjId}
+                
               </div>
               <div class="estimated-amount">
                 <div>예상 금액</div>

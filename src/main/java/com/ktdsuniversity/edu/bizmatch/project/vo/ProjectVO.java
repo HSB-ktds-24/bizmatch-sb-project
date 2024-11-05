@@ -4,7 +4,6 @@ import java.util.List;
 
 import com.ktdsuniversity.edu.bizmatch.comment.vo.CommentVO;
 import com.ktdsuniversity.edu.bizmatch.member.vo.MemberVO;
-import com.ktdsuniversity.edu.bizmatch.payment.vo.PaymentVO;
 
 public class ProjectVO {
 
@@ -29,20 +28,21 @@ public class ProjectVO {
 	private List<CommentVO> projectCommentList; // 프로젝트에 작성된 댓글들 리스트
 	private List<ProjectSkillVO> projectSkillList; // 해당 프로젝트의 보유 기술 목록
 	private List<ProjectIndustryVO> projectIndustryList; // 해당 프로젝트의 산업군 목록.
-	private PaymentVO paymentVO ; // 결제 객체 
+	private String pjApplyId;
 	
 	// getter and setter
+	
 	
 	public List<ProjectIndustryVO> getProjectIndustryList() {
 		return projectIndustryList;
 	}
 	
-	public PaymentVO getPaymentVO() {
-		return paymentVO;
+	public String getPjApplyId() {
+		return pjApplyId;
 	}
 
-	public void setPaymentVO(PaymentVO paymentVO) {
-		this.paymentVO = paymentVO;
+	public void setPjApplyId(String pjApplyId) {
+		this.pjApplyId = pjApplyId;
 	}
 
 	public void setProjectIndustryList(List<ProjectIndustryVO> projectIndustryList) {
