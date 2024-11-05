@@ -1,0 +1,569 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ktdsuniversity.edu.bizmatch.member.dao.MemberDao">
+
+<resultMap type="com.ktdsuniversity.edu.bizmatch.member.vo.CompanyVO" 
+		   id="companyVOMap" 
+		   autoMapping="true">
+<id column="CMPNY_ID" property="cmpnyId"/>
+</resultMap>
+	<!-- 회원의 관심 산업군을 추가하는 쿼리문. -->
+	<insert id="insertOneIndustryInfoSignUp"
+			parameterType="com.ktdsuniversity.edu.bizmatch.common.category.vo.CategoryVO">
+		INSERT INTO MBR_LK_INDSTR
+		( LK_INDSTR_ID
+		, MJR_ID
+		, SMJR_ID
+		, EMIL_ADDR)
+		VALUES
+		('AL-' || TO_CHAR(SYSDATE, 'YYYYMMDD')|| '-' || LPAD(MBR_LK_INDSTR_PK_SEQ.NEXTVAL, 5, '0')
+		, #{mjrId}
+		, #{smjrId}
+		, #{emilAddr} )
+	</insert>
+	
+	<!-- 회원의 비밀번호를 갱신하는 쿼리문. -->
+	<update id="updateOneMemberForResetPwd"
+			parameterType="com.ktdsuniversity.edu.bizmatch.member.vo.MemberResetPwdVO">
+		UPDATE MBR_INFO 
+		   SET PWD = #{pwd}
+		       ,SALT = #{salt}
+	 	 WHERE EMIL_ADDR = #{emilAddr}
+	</update>
+	
+	<select id="selectOneMemberForResetPwd"
+			parameterType = "string"
+			resultType="com.ktdsuniversity.edu.bizmatch.member.vo.MemberVO">
+		SELECT * 
+		  FROM MBR_INFO 
+		 WHERE EMIL_ADDR = #{_parameter}
+	</select>
+	
+	<!-- 한명의 회원 정보를 조회하는 쿼리문 -->
+	<select id="selectOneMember" 
+			parameterType = "com.ktdsuniversity.edu.bizmatch.member.vo.MemberLoginVO"
+			resultType="com.ktdsuniversity.edu.bizmatch.member.vo.MemberVO">
+			SELECT MBR_NM
+				 , EMIL_ADDR
+				 , PWD
+				 , MBR_PHN_NUM
+				 , BRTH_DT
+				 , ADDR
+				 , MBR_STT
+				 , SGNUP_DT
+				 , MBR_CTGRY
+				 , MBR_INTR
+				 , PNLTY
+				 , IS_QT
+				 , QT_DT
+				 , ACCNT_NUM
+				 , ACCNT_VLD_DT
+				 , CMP_ID
+				 , SALT
+				 , LGN_FAIL_CNT
+				 , LTST_LGN_FAIL_DT
+				 , LTST_LGN_IP
+				 , LTST_LGN_SCCSS_DT
+				 , MJR_ID
+				 , SMJR_ID
+				 , CMPNY_RP
+		  FROM MBR_INFO
+		 WHERE EMIL_ADDR = #{emilAddr}
+		   AND PWD = #{pwd}
+		   AND MBR_STT = 1
+	</select>
+	
+	<select id="selectSalt" parameterType="string">
+		SELECT SALT
+		  FROM MBR_INFO
+		 WHERE EMIL_ADDR = #{_parameter}
+	</select>
+	
+	<update id="updateLoginFailCnt" 
+			parameterType="com.ktdsuniversity.edu.bizmatch.member.vo.MemberLoginVO">
+		UPDATE MBR_INFO
+		   SET LGN_FAIL_CNT = LGN_FAIL_CNT + 1
+			 , LTST_LGN_FAIL_DT = SYSDATE 
+			 , LTST_LGN_IP = #{ip}
+		 WHERE EMIL_ADDR = #{emilAddr}
+	</update>
+	
+	<select id="selectLoginFailCnt" 
+			parameterType="com.ktdsuniversity.edu.bizmatch.member.vo.MemberLoginVO"
+			resultType="_int">
+		SELECT COUNT(1) 
+		  FROM MBR_INFO
+		 WHERE EMIL_ADDR = #{emilAddr}
+		   AND LGN_FAIL_CNT >= 5
+		   AND LTST_LGN_FAIL_DT BETWEEN SYSDATE - 1/24 AND SYSDATE
+	</select>
+	
+	<!-- 로그인 성공시 업데이트되어야 하는 내용을 업데이트 해주는 쿼리문. -->
+	<update id="updateLoginSuccessState" 
+	parameterType="com.ktdsuniversity.edu.bizmatch.member.vo.MemberLoginVO">
+	UPDATE MBR_INFO 
+	   SET LGN_FAIL_CNT = 0
+		 , LTST_LGN_SCCSS_DT = SYSDATE 
+	     , LTST_LGN_FAIL_DT = NULL 
+	     , LTST_LGN_IP = #{ip}
+	 WHERE EMIL_ADDR = #{emilAddr}
+	</update>
+	
+	
+	<insert id="insertOneMemberCompany"
+			parameterType="com.ktdsuniversity.edu.bizmatch.member.vo.MemberCompanySignUpVO">
+		INSERT INTO CMPNY_INFO
+		( CMPNY_ID
+		, CMPNY_NM
+		, CMPNY_BIZ_CTGRY
+		, MJR_ID
+		, SMJR_ID
+		, CMPNY_ADDR
+		, CMPNY_PHN_NUM
+		, CMPNY_SITE_URL
+		, CMPNY_EMPLY_CNT
+		, CMPNY_BRN)
+		VALUES
+		( CMPNY_INFO_PK_SEQ.NEXTVAL
+		, #{cmpnyNm}
+		, #{cmpnyBizCtgry}
+		, #{cmpnyIndstrId.mjrId}
+		, #{cmpnyIndstrId.smjrId}
+		, #{address.addr} || #{address.detailAddress} || #{address.extraAddress} || #{address.postcode}
+		, #{cmpnyPhnNum}
+		, #{cmpnySiteUrl} 
+		, #{cmpnyEmplyCnt}
+		, #{cmpnyBrn})
+	</insert>
+	
+	<!-- 기업회원 유형의 개인 정보를 추가로 insert하는 쿼리문이다. -->
+	<insert id="insertOneMember"
+			parameterType="com.ktdsuniversity.edu.bizmatch.member.vo.MemberCompanySignUpVO">
+		INSERT INTO MBR_INFO 
+		( MBR_NM 
+		, EMIL_ADDR 
+		, PWD 
+		, MBR_PHN_NUM 
+		, MBR_CTGRY
+		, CMPNY_RP
+		, SALT )
+		VALUES
+		( #{mbrNm}
+		, #{emilAddr}
+		, #{pwd}
+		, #{mbrPhnNum}
+		, #{mbrCtgry}
+		, #{cmpnyRp}
+		, #{salt}
+		)
+	</insert>
+	
+	<!-- 개인회원 유형의 개인 정보를 추가로 insert하는 쿼리문이다. -->
+	<insert id="insertOneMemberFreelancer"
+			parameterType="com.ktdsuniversity.edu.bizmatch.member.vo.MemberSignUpVO">
+		INSERT INTO MBR_INFO
+		(MBR_NM
+		,EMIL_ADDR
+		,PWD
+		,MBR_PHN_NUM
+		,BRTH_DT
+		,ADDR
+		,MBR_CTGRY
+		,SALT
+		,MJR_ID
+		,SMJR_ID)
+		VALUES
+		( #{mbrNm}
+		, #{emilAddr}
+		, #{pwd}
+		, #{mbrPhnNum}
+		, #{brthDt}
+		, #{addr.addr} || #{addr.detailAddress} || #{addr.extraAddress} || #{addr.postcode}
+		, #{mbrCtgry}
+		, #{salt}
+		, #{mjrId}
+		, #{smjrId}
+		)
+	</insert>
+	
+	
+	
+	<select id="selectOneCompany" 
+	parameterType="string" 
+	resultMap="companyVOMap">
+	SELECT CMPNY_ID
+		 , CMPNY_NM
+	 	 , CMPNY_BIZ_CTGRY
+		 , MJR_ID
+		 , CMPNY_ADDR
+		 , CMPNY_PHN_NUM
+		 , CMPNY_SITE_URL
+		 , CMPNY_EMPLY_CNT
+		 , CMPNY_BRN
+		 , SMJR_ID
+	  FROM CMPNY_INFO
+	 WHERE CMPNY_BRN = #{_parameter}
+	</select>
+	
+	
+	<!-- 회원가입 중복 이메일 방지를 위해 사용하는 쿼리문이다. -->
+	<select id="selectEmailCnt"
+			parameterType="string">
+		SELECT COUNT(1) 
+		  FROM MBR_INFO
+		 WHERE EMIL_ADDR = #{_parameter}
+	</select>
+	
+	<!-- 제공된 주요 기술 List 조회 쿼리문 -->
+	<select id="selectAllSkills" resultType="com.ktdsuniversity.edu.bizmatch.member.vo.PrmStkVO">
+		SELECT PRM_STK_ID
+	 		 , PRM_STK
+  		  FROM PRM_STK
+	</select>
+	
+	<!-- 새로운 기술 추가 퀴리문 -->
+	<insert id="insertNewSkills" parameterType="com.ktdsuniversity.edu.bizmatch.member.vo.PrmStkVO">
+		INSERT INTO PRM_STK
+		( PRM_STK_ID
+		, PRM_STK)
+		VALUES
+		(PRM_STK_SEQ.NEXTVAL
+		, #{prmStk} )
+	</insert>
+	
+	<!-- 특정 회원 모든 포트폴리오 조회 쿼리문 -->
+	<select id="selectAllPortfolios" 
+			parameterType="string" 
+			resultType="com.ktdsuniversity.edu.bizmatch.member.vo.MemberPortfolioVO">
+		SELECT MBR_PRTFL_ID ,
+			   MBR_PRTFL_TTL ,
+			   MBR_PRTFL_TEXT ,
+			   EMIL_ADDR 
+		  FROM MBR_PRTFL
+		 WHERE EMIL_ADDR = #{_parameter}
+		 ORDER BY MBR_PRTFL_ID DESC
+	</select>
+	
+	<!-- 하나의 포트폴리오 조회 쿼리문 -->
+	<select id="selectOnePortfolio" 
+			parameterType="string" 
+			resultType="com.ktdsuniversity.edu.bizmatch.member.vo.MemberPortfolioVO">
+		SELECT MBR_PRTFL_ID,
+			   MBR_PRTFL_TEXT,
+			   MBR_PRTFL_TTL
+		  FROM MBR_PRTFL
+		 WHERE MBR_PRTFL_ID = #{_parameter}
+	</select>
+	
+	<!-- 새로운 포트폴리오 추가 쿼리문 -->
+	<insert id="insertNewPortfolio" 
+			parameterType="com.ktdsuniversity.edu.bizmatch.member.vo.MemberPortfolioVO">
+		<selectKey keyProperty="mbrPrtflId" order="BEFORE"
+			resultType="string">
+			SELECT MBR_PRTFL_PK_SEQ.NEXTVAL
+			  FROM DUAL
+		</selectKey>
+		INSERT INTO MBR_PRTFL 
+		(MBR_PRTFL_ID
+		,MBR_PRTFL_TTL
+		,MBR_PRTFL_TEXT
+		,EMIL_ADDR)
+		VALUES
+		(#{mbrPrtflId}
+		,#{mbrPrtflTtl}
+		,#{mbrPrtflText}
+		,#{emilAddr})
+	</insert>
+	
+	<!-- 포트폴리오 수정 쿼리문 -->
+	<update id="updateOnePortfolio" 
+			parameterType="com.ktdsuniversity.edu.bizmatch.member.vo.MemberPortfolioVO">
+		UPDATE MBR_PRTFL
+		   SET MBR_PRTFL_TEXT=#{mbrPrtflText},
+		       MBR_PRTFL_TTL=#{mbrPrtflTtl}
+		 WHERE MBR_PRTFL_ID=#{mbrPrtflId}
+	</update>
+	
+	<!-- 포트폴리오 삭제 쿼리문 -->
+	<delete id="deleteOnePortfolio" 
+			parameterType="string">
+		DELETE
+  		  FROM MBR_PRTFL
+ 		 WHERE MBR_PRTFL_ID = #{_parameter}
+	</delete>
+	
+	
+
+	<!-- 멤버 탈퇴 업데이트 쿼리문. -->
+	<select id="updateMemberDeactivate" parameterType="string">
+	UPDATE MBR_INFO 
+	   SET QT_DT = SYSDATE,
+	       IS_QT = 1,
+	       PWD = NULL,
+	       MBR_NM = NULL ,
+	       MBR_PHN_NUM = NULL, 
+	       BRTH_DT = NULL, 
+	       ADDR = NULL
+	 WHERE EMIL_ADDR = #{_parameter}
+   	   AND IS_QT = 0
+ 	</select>
+ 
+ 	<!-- 마이페이지 정보 조회 쿼리문 -->
+ 	<resultMap type="com.ktdsuniversity.edu.bizmatch.member.vo.MemberVO" id="memberVOMap" autoMapping="true">
+ 		<id column="EMIL_ADDR" property="emilAddr" />
+ 		<!-- CompanyVO 매핑 -->
+    	<association property="companyVO" javaType="com.ktdsuniversity.edu.bizmatch.member.vo.CompanyVO" autoMapping="true">
+        	<id column="CMPNY_ID" property="cmpnyId" />
+    	</association>
+ 		<!-- MbrPrmStkVO 매핑 -->
+ 		<collection property="mbrPrmStkList" ofType="com.ktdsuniversity.edu.bizmatch.common.skills.vo.MbrPrmStkVO" autoMapping="true">
+ 			<id column="MBR_PRM_STK_ID" property="mbrPrmStkId" />
+ 			<!-- PrmStkVO 매핑 -->
+ 			<association property="prmStkVO" javaType="com.ktdsuniversity.edu.bizmatch.member.vo.PrmStkVO" >
+ 				<id column="PRM_STK_ID" property="prmStkId" />
+ 				<result property="prmStk" column="PRM_STK"/>
+ 			</association>
+ 		</collection>
+ 	</resultMap>
+ 	
+ 	<!-- 마이페이지 기업정보 조회 -->
+ 	<select id="selectOneCompanyByEmilAddr" parameterType="com.ktdsuniversity.edu.bizmatch.member.vo.MemberVO" resultMap="companyVOMap">
+   		SELECT ci.CMPNY_NM
+   			 , ci.CMPNY_BIZ_CTGRY
+	 		 , mi.EMIL_ADDR
+	 	 	 , ci.CMPNY_ADDR
+	 	 	 , ci.CMPNY_SITE_URL
+	 	 	 , ci.CMPNY_ID
+			 , ci.CMPNY_NM
+			 , ci.CMPNY_BIZ_CTGRY
+			 , ci.MJR_ID
+			 , ci.CMPNY_ADDR
+			 , ci.CMPNY_PHN_NUM
+			 , ci.CMPNY_SITE_URL
+			 , ci.CMPNY_EMPLY_CNT
+			 , ci.CMPNY_BRN
+			 , ci.SMJR_ID
+			 , ci.CMPNY_INTR
+			 , ci.CMPNY_ACCUNT_NUM
+      	  FROM MBR_INFO mi
+      	  LEFT JOIN CMPNY_INFO ci
+     		ON mi.CMP_ID = ci.CMPNY_ID
+ 		 WHERE mi.EMIL_ADDR = #{emilAddr}
+ 		   AND mi.CMP_ID = #{cmpId}
+ 	</select>
+ 	
+
+ 	<!-- 마이페이지 리뷰 리스트 조회 쿼리문 -->
+ 	<resultMap type="com.ktdsuniversity.edu.bizmatch.project.review.vo.ReviewVO" id="reviewVOMap" autoMapping="true">
+ 		<id column="RVW_ID" property="rvwId" />
+ 	</resultMap>
+ 	
+ 	<!-- 최신순 리뷰 리스트 조회 -->
+ 	<select id="selectReviewList" parameterType="string" resultMap="reviewVOMap">
+ 		SELECT pi.PJ_ID 
+	 		 , pr.RVW_ID
+	 		 , pr.RVW_CNTNT
+	 		 , pr.RVW_DT
+	 		 , pr.SCR
+	 		 , pr.IS_DLT
+	 		 , pr.EMIL_ADDR
+  		  FROM PJ_RVW pr 
+ 	INNER JOIN PJ_INFO pi
+    		ON pr.EMIL_ADDR = pi.ORDR_ID
+    		AND PI.PJ_ID = pr.PJ_ID 
+ 	INNER JOIN MBR_INFO mi 
+    		ON mi.EMIL_ADDR = pi.OBTN_ID
+ 		 WHERE mi.EMIL_ADDR = #{_parameter}
+   		   AND pr.IS_DLT = 0
+   		 ORDER BY pr.RVW_DT DESC
+ 	</select>
+ 	
+ 	<!-- 최신순 pagination list 조회 쿼리문-->
+ 	<select id="selectPagination" 
+ 			parameterType="com.ktdsuniversity.edu.bizmatch.member.vo.MemberPaginationVO" 
+ 			resultMap="reviewVOMap">
+ 		SELECT *
+		  FROM ( SELECT ROWNUM as RNUM
+			 	 	  , S.*
+				   FROM ( 
+ 						 SELECT PI.PJ_ID
+	 		 				  , PR.RVW_ID
+	 		 				  , PR.RVW_CNTNT
+					 		  , PR.RVW_DT
+					 		  , PR.SCR
+					 		  , PR.IS_DLT
+					 		  , PR.EMIL_ADDR
+  		  				   FROM PJ_RVW PR 
+ 					 INNER JOIN PJ_INFO PI
+    						 ON PR.EMIL_ADDR = PI.ORDR_ID
+ 					 INNER JOIN MBR_INFO MI 
+    						 ON MI.EMIL_ADDR = PI.OBTN_ID
+ 		 				  WHERE MI.EMIL_ADDR = #{searchEmilParameter}
+   		   					AND PR.IS_DLT = 0
+   		 				  ORDER BY PR.RVW_DT DESC ) S
+				  WHERE ROWNUM <![CDATA[<=]]> (#{currPageNo} + 1)*#{exposureListSize} )
+		  WHERE RNUM <![CDATA[>=]]> #{currPageNo} * #{exposureListSize} + 1
+ 	</select>
+ 	
+ 	<!-- 별점 높은순 리뷰 리스트 조회 -->
+ 	<select id="selectReviewListByScrDesc" parameterType="string" resultMap="reviewVOMap">
+ 		SELECT pi.PJ_ID
+	 		 , pr.RVW_ID
+	 		 , pr.RVW_CNTNT
+	 		 , pr.RVW_DT
+	 		 , pr.SCR
+	 		 , pr.IS_DLT
+	 		 , pr.EMIL_ADDR
+  		  FROM PJ_RVW pr 
+ 	INNER JOIN PJ_INFO pi
+    		ON pr.EMIL_ADDR = pi.ORDR_ID
+ 	INNER JOIN MBR_INFO mi 
+    		ON mi.EMIL_ADDR = pi.OBTN_ID
+ 		 WHERE mi.EMIL_ADDR = #{_parameter}
+   		   AND pr.IS_DLT = 0
+   		 ORDER BY pr.SCR DESC 
+	   		 , pr.RVW_DT DESC
+ 	</select>
+ 	
+ 	<!-- 별점 높은순 pagination list 조회 쿼리문-->
+ 	<select id="selectPaginationByScrDesc" 
+ 			parameterType="com.ktdsuniversity.edu.bizmatch.member.vo.MemberPaginationVO" 
+ 			resultMap="reviewVOMap">
+ 		SELECT *
+		  FROM ( SELECT ROWNUM as RNUM
+			 	 	  , S.*
+				   FROM ( 
+ 						 SELECT pi.PJ_ID
+	 		 				  , pr.RVW_ID
+	 		 				  , pr.RVW_CNTNT
+					 		  , pr.RVW_DT
+					 		  , pr.SCR
+					 		  , pr.IS_DLT
+					 		  , pr.EMIL_ADDR
+  		  				   FROM PJ_RVW pr 
+ 					 INNER JOIN PJ_INFO pi
+    						 ON pr.EMIL_ADDR = pi.ORDR_ID
+ 					 INNER JOIN MBR_INFO mi 
+    						 ON mi.EMIL_ADDR = pi.OBTN_ID
+ 		 				  WHERE mi.EMIL_ADDR = #{searchEmilParameter}
+   		   					AND pr.IS_DLT = 0
+   		 				  ORDER BY pr.SCR DESC 
+	   		 				  , pr.RVW_DT DESC ) S
+				  WHERE ROWNUM <![CDATA[<=]]> (#{currPageNo} + 1)*#{exposureListSize} )
+		  WHERE RNUM <![CDATA[>=]]> #{currPageNo} * #{exposureListSize} + 1
+ 	</select>
+ 	
+ 	<!-- 별점 낮은순 리뷰 리스트 조회 -->
+ 	<select id="selectReviewListByScrAsc" parameterType="string" resultMap="reviewVOMap">
+ 		SELECT pi.PJ_ID
+	 		 , pr.RVW_ID
+	 		 , pr.RVW_CNTNT
+	 		 , pr.RVW_DT
+	 		 , pr.SCR
+	 		 , pr.IS_DLT
+	 		 , pr.EMIL_ADDR
+  		  FROM PJ_RVW pr 
+ 	INNER JOIN PJ_INFO pi
+    		ON pr.EMIL_ADDR = pi.ORDR_ID
+ 	INNER JOIN MBR_INFO mi 
+    		ON mi.EMIL_ADDR = pi.OBTN_ID
+ 		 WHERE mi.EMIL_ADDR = #{_parameter}
+   		   AND pr.IS_DLT = 0
+   		 ORDER BY pr.SCR ASC 
+	   		 , pr.RVW_DT DESC
+ 	</select>
+ 	
+ 	<!-- 별점 낮은순 pagination list 조회 쿼리문-->
+ 	<select id="selectPaginationByScrAsc" parameterType="com.ktdsuniversity.edu.bizmatch.member.vo.MemberPaginationVO" resultMap="reviewVOMap">
+ 		SELECT *
+		  FROM ( SELECT ROWNUM as RNUM
+			 	 	  , S.*
+				   FROM ( 
+ 						 SELECT pi.PJ_ID
+	 		 				  , pr.RVW_ID
+	 		 				  , pr.RVW_CNTNT
+					 		  , pr.RVW_DT
+					 		  , pr.SCR
+					 		  , pr.IS_DLT
+					 		  , pr.EMIL_ADDR
+  		  				   FROM PJ_RVW pr 
+ 					 INNER JOIN PJ_INFO pi
+    						 ON pr.EMIL_ADDR = pi.ORDR_ID
+ 					 INNER JOIN MBR_INFO mi 
+    						 ON mi.EMIL_ADDR = pi.OBTN_ID
+ 		 				  WHERE mi.EMIL_ADDR = #{searchEmilParameter}
+   		   					AND pr.IS_DLT = 0
+   		 				  ORDER BY pr.SCR ASC 
+	   		 				  , pr.RVW_DT DESC ) S
+				  WHERE ROWNUM <![CDATA[<=]]> (#{currPageNo} + 1)*#{exposureListSize} )
+		  WHERE RNUM <![CDATA[>=]]> #{currPageNo} * #{exposureListSize} + 1
+ 	</select>
+ 	
+ 	<!-- 회원 관심산업군 조회 쿼리문 -->
+ 	<resultMap type="com.ktdsuniversity.edu.bizmatch.member.vo.MbrLkIndstrVO" id="mbrLkIndstrVOMap" autoMapping="true">
+ 		<id column="LK_INDSTR_ID" property="lkIndstrId" />
+ 	</resultMap>
+ 	<select id="selectMbrLkIndstr" 
+ 	parameterType="string" 
+ 	resultType="com.ktdsuniversity.edu.bizmatch.member.vo.MemberMyPageIndsryVO">
+ 		SELECT A.INDSTR_NM AS SMJR_NM
+ 	  		 , ID.INDSTR_NM AS MJR_NM
+  		  FROM (SELECT IO.INDSTR_NM
+	 	     		 , ML.SMJR_ID 
+	 	     		 , IO.UPPR_INDSTR_ID 
+	   	  		  FROM MBR_INFO M
+	   	  		  JOIN MBR_LK_INDSTR ML
+	     			ON M.EMIL_ADDR = ML.EMIL_ADDR 
+	   	  		  JOIN INDSTR_INFO IO
+	     			ON IO.INDSTR_ID = ML.SMJR_ID 
+	     		 WHERE ML.EMIL_ADDR = #{_parameter} ) A
+   		  JOIN INDSTR_INFO ID
+     		ON ID.INDSTR_ID = A.UPPR_INDSTR_ID
+ 	</select>
+ 	
+ 	<update id="updateMemberCompanyMyPage" parameterType="com.ktdsuniversity.edu.bizmatch.member.vo.MemberCompanyModifyVO">
+ 	UPDATE CMPNY_INFO 
+	   SET CMPNY_NM = #{cmpnyNm}
+	     , CMPNY_SITE_URL = #{cmpnySiteUrl}
+	     , CMPNY_ADDR = #{cmpnyAddr}
+	     , CMPNY_INTR = #{cmpnyIntr}
+	     , CMPNY_ACCUNT_NUM = #{cmpnyAccuntNum}
+ 	 WHERE CMPNY_ID = #{cmpnyId}
+ 	</update>
+ 	
+ 	<update id="updateMyInfoMember" parameterType="com.ktdsuniversity.edu.bizmatch.member.vo.MemberModifyVO">
+ 	UPDATE MBR_INFO 
+	   SET MBR_NM =#{mbrNm}
+	   	 , MBR_PHN_NUM = #{mbrPhnNum}
+	   	 , EMIL_ADDR = #{newEmilAddr}
+	 WHERE EMIL_ADDR = #{emilAddr}
+ 	</update>
+ 	
+ 	
+ 	<update id="updateFrreelancerMemberMypage" parameterType="com.ktdsuniversity.edu.bizmatch.member.vo.MemberFreelancerModifyVO">
+ 	UPDATE MBR_INFO
+ 	  SET MBR_INTR = #{mbrIntr}
+ 	    , MJR_ID = #{mjrId}
+ 	    , SMJR_ID = #{smjrId}
+ 	WHERE EMIL_ADDR = #{emilAddr}
+ 	
+ 	</update>
+ 	<resultMap type="com.ktdsuniversity.edu.bizmatch.member.vo.MemberMyPageIndsryVO" id="MbrIndsryVOMap">
+ 		<result column="MJR_NM" property="mjrNm"/>
+ 		<result column="SMJR_NM" property="smjrNm"/>
+ 	</resultMap>
+ 	<select id="selectMbrIndsty" 
+ 	parameterType="string" 
+ 	resultMap="MbrIndsryVOMap">
+ 	SELECT II.INDSTR_NM MJR_NM
+	 , III.INDSTR_NM SMJR_NM
+	  FROM CMPNY_INFO CI
+	  JOIN INDSTR_INFO II
+	    ON II.INDSTR_ID = CI.MJR_ID 
+	  JOIN INDSTR_INFO III
+	    ON III.INDSTR_ID = CI.SMJR_ID 
+	 WHERE CI.CMPNY_ID = #{_parameter}
+ 	</select>
+</mapper>
